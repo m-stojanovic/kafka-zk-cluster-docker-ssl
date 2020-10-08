@@ -1,0 +1,246 @@
+---
+version: '2.1'
+services:
+  zoo1:
+    image: confluentinc/cp-zookeeper:5.5.1
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - "22181:22181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zoo1:22888:23888;zoo2:32888:33888;zoo3:42888:43888
+    volumes:
+      - /DATA1/zookeeper/zoo1/data:/var/lib/zookeeper/data
+      - /DATA1/zookeeper/zoo1/log:/var/lib/zookeeper/log
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.2
+
+  zoo2:
+    image: confluentinc/cp-zookeeper:5.5.1
+    hostname: zoo2
+    container_name: zoo2
+    ports:
+      - "32181:32181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zoo1:22888:23888;zoo2:32888:33888;zoo3:42888:43888
+    volumes:
+      - /DATA1/zookeeper/zoo2/data:/var/lib/zookeeper/data
+      - /DATA1/zookeeper/zoo2/log:/var/lib/zookeeper/log
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.3
+
+  zoo3:
+    image: confluentinc/cp-zookeeper:5.5.1
+    hostname: zoo3
+    container_name: zoo3
+    ports:
+      - "42181:42181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 42181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zoo1:22888:23888;zoo2:32888:33888;zoo3:42888:43888
+    volumes:
+      - /DATA1/zookeeper/zoo3/data:/var/lib/zookeeper/data
+      - /DATA1/zookeeper/zoo3/log:/var/lib/zookeeper/log
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.4
+
+  kafka-broker-1:
+    image: confluentinc/cp-kafka:5.5.1
+    hostname: kafka-broker-1.yourcomain.com
+    container_name: kafka-broker-1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:22181,zoo1:32181,zoo1:42181
+      KAFKA_ADVERTISED_LISTENERS: SSL://kafka-broker-1.yourcomain.com:9092
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka.broker-1.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: broker-1_keystore_creds
+      KAFKA_SSL_KEY_CREDENTIALS: broker-1_sslkey_creds
+      KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.broker-1.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: broker-1_truststore_creds
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: " "
+      KAFKA_SSL_CLIENT_AUTH: requested
+      KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SSL
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - /DATA2/kafka/kafka-broker-1/data:/var/lib/kafka/data
+      - config-kafka-broker-1:/etc/kafka
+      - ./secrets/broker-1:/etc/kafka/secrets
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.5
+
+  kafka-broker-2:
+    image: confluentinc/cp-kafka:5.5.1
+    hostname: kafka-broker-2.yourcomain.com
+    container_name: kafka-broker-2
+    ports:
+      - "9093:9093"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:22181,zoo1:32181,zoo1:42181
+      KAFKA_ADVERTISED_LISTENERS: SSL://kafka-broker-2.yourcomain.com:9093
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka.broker-2.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: broker-2_keystore_creds
+      KAFKA_SSL_KEY_CREDENTIALS: broker-2_sslkey_creds
+      KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.broker-2.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: broker-2_truststore_creds
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: " "
+      KAFKA_SSL_CLIENT_AUTH: requested
+      KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SSL
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - /DATA2/kafka/kafka-broker-2/data:/var/lib/kafka/data
+      - config-kafka-broker-2:/etc/kafka
+      - ./secrets/broker-2:/etc/kafka/secrets
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.6
+
+  kafka-broker-3:
+    image: confluentinc/cp-kafka:5.5.1
+    hostname: kafka-broker-3.yourcomain.com
+    container_name: kafka-broker-3
+    ports:
+      - "9094:9094"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:22181,zoo1:32181,zoo1:42181
+      KAFKA_ADVERTISED_LISTENERS: SSL://kafka-broker-3.yourcomain.com:9094
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka.broker-3.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: broker-3_keystore_creds
+      KAFKA_SSL_KEY_CREDENTIALS: broker-3_sslkey_creds
+      KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.broker-3.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: broker-3_truststore_creds
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: " "
+      KAFKA_SSL_CLIENT_AUTH: requested
+      KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SSL
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - ./secrets/broker-3:/etc/kafka/secrets
+      - /DATA2/kafka/kafka-broker-3/data:/var/lib/kafka/data
+      - config-kafka-broker-3:/etc/kafka
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.7
+
+  kafka-manager:
+    image: kafkamanager/kafka-manager:latest
+    container_name: kafka-manager
+    hostname: kafka-manager
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: 'zoo1:22181,zoo2:32181,zoo3:42181'
+      KAFKA_MANAGER_AUTH_ENABLED: 'true'
+      KAFKA_MANAGER_USERNAME: "${KAFKA_MANAGER_USERNAME}"
+      KAFKA_MANAGER_PASSWORD: "${KAFKA_MANAGER_PASSWORD}"
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.8
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+
+#  akhq:
+#    image: tchiotludo/kafkahq:latest
+#    container_name: akhq
+#    restart: unless-stopped
+#    hostname: akhq
+#    volumes:
+#      - ./akhq/config.yml:/app/application.yml
+#      - ./akhq/ssl/client.truststore.jks:/app/client.truststore.jks
+#      - ./akhq/ssl/client.keystore.jks:/app/client.keystore.jks
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      kafka_cluster:
+#        ipv4_address: 172.22.0.9    
+#    depends_on:
+#      - kafka-broker-1.yourcomain.com
+#      - kafka-broker-2.yourcomain.com
+#      - kafka-broker-3.yourcomain.com
+#
+  kowl:
+    image: quay.io/cloudhut/kowl:v1.1.0
+    container_name: kowl
+    restart: unless-stopped
+    hostname: kowl
+    volumes:
+      - ./secrets/mstojanovic-ca-1.pem:/etc/kowl/ssl/mstojanovic-ca-1.pem
+      - ./secrets/mstojanovic-ca-1.crt:/etc/kowl/ssl/mstojanovic-ca-1.crt
+      - ./kowl/config.yml:/etc/kowl/config.yaml
+    ports:
+      - "8080:8080"
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+    networks:
+      kafka_cluster:
+        ipv4_address: 172.22.0.10
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+
+volumes:
+  config-kafka-broker-1:
+    driver: local
+  config-kafka-broker-2:
+    driver: local
+  config-kafka-broker-3:
+    driver: local
+networks:
+  kafka_cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1

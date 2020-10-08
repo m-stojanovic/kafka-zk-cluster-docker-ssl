@@ -1,0 +1,19 @@
+#!/bin/bash
+cp consumer/kafka.consumer.keystore.jks broker-1/
+cp consumer/kafka.consumer.keystore.jks broker-2/
+cp consumer/kafka.consumer.keystore.jks broker-3/
+cp consumer/kafka.consumer.truststore.jks broker-1/
+cp consumer/kafka.consumer.truststore.jks broker-2/
+cp consumer/kafka.consumer.truststore.jks broker-3/
+cp producer/kafka.producer.keystore.jks broker-1/
+cp producer/kafka.producer.keystore.jks broker-2/
+cp producer/kafka.producer.keystore.jks broker-3/
+cp producer/kafka.producer.truststore.jks broker-3/
+cp producer/kafka.producer.truststore.jks broker-2/
+cp producer/kafka.producer.truststore.jks broker-1/
+cp host.consumer.ssl.config broker-1/
+cp host.consumer.ssl.config broker-2/
+cp host.consumer.ssl.config broker-3/
+cp host.producer.ssl.config broker-1/
+cp host.producer.ssl.config broker-2/
+cp host.producer.ssl.config broker-3/

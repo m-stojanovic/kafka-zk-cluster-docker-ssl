@@ -1,0 +1,11 @@
+kafka:
+  brokers:
+    - kafka-broker-1.yourdomain.com:9092
+    - kafka-broker-2.yourdomain.com:9093
+    - kafka-broker-3.yourdomain.com:9094
+  tls:
+    enabled: true
+    caFilepath: "/etc/kowl/ssl/snakeoil-ca-1.crt"
+    certFilepath: "/etc/kowl/ssl/snakeoil-ca-1.crt"
+    keyFilepath: "/etc/kowl/ssl/snakeoil-ca-1.pem"
+    passphrase: "${KAFKA_SSL_PASSWORD}"

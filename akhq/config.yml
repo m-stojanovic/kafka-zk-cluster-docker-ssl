@@ -1,0 +1,12 @@
+kafkahq:
+  connections:
+    kafka_secured_cluster:
+      properties:
+        bootstrap.servers: "kafka-broker-1:9092,kafka-broker-2:9093,kafka-broker-3:9094"
+        security.protocol: SSL
+        ssl.truststore.location: /app/client.truststore.jks
+        ssl.truststore.password: "${KAFKA_SSL_PASSWORD}"
+        ssl.keystore.location: /app/client.keystore.jks
+        ssl.keystore.password: "${KAFKA_SSL_PASSWORD}"
+        ssl.key.password: "${KAFKA_SSL_PASSWORD}"
+
